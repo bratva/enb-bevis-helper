@@ -14,6 +14,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
         this._autopolyfillerExcludes = [];
         this._browserSupport = [];
         this._buildHtml = false;
+        this._addTargets = true;
         this._buildTests = false;
         this._ie8Suffix = null;
         this._ie9Suffix = null;
@@ -30,6 +31,21 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
         return this.copyAnd(function () {
             this._depsConfig = {};
             this._buildHtml = true;
+        });
+    },
+
+    /**
+     * Собирает статичную HTML-страницу из BtJson со всеми необходимыми ресурсами: JS, CSS.
+     * При этом не добавляет таргеты.
+     * Подходит для сборки примеров.
+     *
+     * @returns {EnbBevisHelperBase}
+     */
+    forStaticExamplesHtmlPage: function () {
+        return this.copyAnd(function () {
+            this._depsConfig = {};
+            this._buildHtml = true;
+            this._addTargets = false;
         });
     },
 
@@ -203,6 +219,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
      */
     configureNode: function (nodeConfig, options) {
         var browserSupport = this._browserSupport;
+        var addTargets = this._addTargets;
 
         function configureCssBuild(suffix, browserSupport, variables) {
             var file = '?' + (suffix ? '.' + suffix : '') + '.css';
@@ -219,7 +236,9 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
                     require('enb-borschik/techs/borschik'), {source: file, target: '_' + file, freeze: true}
                 ]);
             });
-            nodeConfig.addTarget('_' + file);
+            if (addTargets) {
+                nodeConfig.addTarget('_' + file);
+            }
         }
 
         nodeConfig.addTechs([
@@ -251,7 +270,9 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
                 require('enb-bevis/techs/source-deps-from-btjson'),
                 [require('enb-bt/techs/html-from-btjson'), {lang: '{lang}'}]
             ]);
-            nodeConfig.addTarget('?.{lang}.html');
+            if (addTargets) {
+                nodeConfig.addTarget('?.{lang}.html');
+            }
         }
 
         if (this._buildTests) {
@@ -290,7 +311,9 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
                 configureCssBuild(this._ie9Suffix, ['ie 9'], {ie: 9});
             }
 
-            nodeConfig.addTargets(['?.bt.js', '_?.{lang}.js', '_?.lang.{lang}.js']);
+            if (addTargets) {
+                nodeConfig.addTargets(['?.bt.js', '_?.{lang}.js', '_?.lang.{lang}.js']);
+            }
         }
     },
 
