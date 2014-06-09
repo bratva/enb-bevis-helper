@@ -313,7 +313,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
 });
 
 var EnbBevisHelperModule = inherit(EnbBevisHelperBase, {
-    getName: function() {
+    getName: function () {
         return 'enb-bevis-helper';
     }
 });

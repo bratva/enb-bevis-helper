@@ -4,7 +4,7 @@
   "scripts": {
     "test": "npm run-script jshint && npm run-script check-style",
     "jshint": "jshint .",
-    "check-style": "jscs -c node_modules/enb-validate-code/jscs.json techs"
+    "check-style": "jscs -c node_modules/enb-validate-code/jscs.json index.js"
   },
   "repository": {
     "type": "git",
