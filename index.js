@@ -20,6 +20,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
         this._ie9Suffix = null;
         this._testDirs = null;
         this._config = config;
+        this._useSourceMaps = null;
     },
 
     /**
@@ -194,6 +195,18 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
     },
 
     /**
+     * Устанавливает использование `source-maps`.
+     *
+     * @param {Boolean} use
+     * @returns {EnbBevisHelperBase}
+     */
+    useSourceMaps: function (useSourceMaps) {
+        return this.copyAnd(function () {
+            this._useSourceMaps = useSourceMaps;
+        });
+    },
+
+    /**
      * Задает список исходных зависимостей для сборки.
      *
      * @param {String[]} sourceDeps
@@ -220,6 +233,11 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
     configureNode: function (nodeConfig, options) {
         var browserSupport = this._browserSupport;
         var addTargets = this._addTargets;
+        var useSourceMaps = this._useSourceMaps;
+
+        if (useSourceMaps === null) {
+            useSourceMaps = !process.env.ENB_NO_SOURCE_MAPS;
+        }
 
         function configureCssBuild(suffix, browserSupport, variables) {
             var file = '?' + (suffix ? '.' + suffix : '') + '.css';
@@ -247,21 +265,29 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
             require('enb-bevis/techs/files'),
 
             [require('enb-y-i18n/techs/y-i18n-lang-js'), {lang: '{lang}'}],
-            require('enb-bt/techs/bt-client-module')
+            [require('enb-bt/techs/bt-client-module'), {useSourceMap: useSourceMaps}]
         ]);
 
         if (this._useAutopolyfiller) {
             nodeConfig.addTechs([
-                [require('enb-bevis/techs/js'), {lang: '{lang}', target: '?.source.{lang}.js'}],
+                [require('enb-bevis/techs/js'), {
+                    lang: '{lang}',
+                    target: '?.source.{lang}.js',
+                    useSourceMap: useSourceMaps
+                }],
                 [require('enb-autopolyfiller/techs/autopolyfiller'), {
                     source: '?.source.{lang}.js',
                     target: '?.{lang}.js',
                     browsers: browserSupport,
-                    excludes: this._autopolyfillerExcludes
+                    excludes: this._autopolyfillerExcludes,
+                    useSourceMap: useSourceMaps
                 }]
             ]);
         } else {
-            nodeConfig.addTech([require('enb-bevis/techs/js'), {lang: '{lang}'}]);
+            nodeConfig.addTech([require('enb-bevis/techs/js'), {
+                lang: '{lang}',
+                useSourceMap: useSourceMaps
+            }]);
         }
 
         if (this._buildHtml) {
@@ -281,7 +307,11 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
             nodeConfig.setLanguages(['ru']);
             nodeConfig.addTechs([
                 [require('enb-bevis/techs/source-deps-test'), {fileMask: fileMask}],
-                [require('enb-bevis/techs/js-test'), {target: 'tests.js', fileMask: fileMask}],
+                [require('enb-bevis/techs/js-test'), {
+                    target: 'tests.js',
+                    fileMask: fileMask,
+                    useSourceMap: useSourceMaps
+                }],
                 [require('enb/techs/file-copy'), {source: '?.ru.js', target: 'sources.js'}]
             ]);
         } else {
