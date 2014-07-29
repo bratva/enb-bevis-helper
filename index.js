@@ -21,6 +21,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
         this._testDirs = null;
         this._config = config;
         this._useSourceMaps = null;
+        this._useCoverage = null;
     },
 
     /**
@@ -207,6 +208,18 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
     },
 
     /**
+     * Устанавливает использование `source-maps`.
+     *
+     * @param {Boolean} useCoverage
+     * @returns {EnbBevisHelperBase}
+     */
+    useCoverage: function (useCoverage) {
+        return this.copyAnd(function () {
+            this._useCoverage = useCoverage;
+        });
+    },
+
+    /**
      * Задает список исходных зависимостей для сборки.
      *
      * @param {String[]} sourceDeps
@@ -237,6 +250,12 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
 
         if (useSourceMaps === null) {
             useSourceMaps = !process.env.ENB_NO_SOURCE_MAPS;
+        }
+
+        var useCoverage = this._useCoverage;
+
+        if (useCoverage === null) {
+            useCoverage = Boolean(process.env.ENB_COVERAGE);
         }
 
         function configureCssBuild(suffix, browserSupport, variables) {
@@ -305,14 +324,34 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
             var fileMask = options.fileMask;
 
             nodeConfig.setLanguages(['ru']);
+            var testsTarget = 'tests.js';
+            var sourcesTarget = 'sources.js';
+            if (useCoverage) {
+                testsTarget = '?.test-cov.js';
+                sourcesTarget = '?.cov.js';
+                nodeConfig.addTechs([
+                    [require('enb-bevis/techs/js-cov-test'), {
+                        source: testsTarget,
+                        target: 'tests.js'
+                    }],
+                    [require('enb-bevis/techs/js-cov'), {
+                        source: sourcesTarget,
+                        target: 'sources.js',
+                        excludes: [
+                            nodeConfig.getPath() + '/**',
+                            'node_modules/**'
+                        ]
+                    }]
+                ]);
+            }
             nodeConfig.addTechs([
                 [require('enb-bevis/techs/source-deps-test'), {fileMask: fileMask}],
                 [require('enb-bevis/techs/js-test'), {
-                    target: 'tests.js',
+                    target: testsTarget,
                     fileMask: fileMask,
                     useSourceMap: useSourceMaps
                 }],
-                [require('enb/techs/file-copy'), {source: '?.ru.js', target: 'sources.js'}]
+                [require('enb/techs/file-copy'), {source: '?.ru.js', target: sourcesTarget}]
             ]);
         } else {
             nodeConfig.addTech(require('enb-bt/techs/bt-server'));
