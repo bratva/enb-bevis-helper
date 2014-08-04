@@ -287,15 +287,23 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
             [require('enb-bt/techs/bt-client-module'), {useSourceMap: useSourceMaps}]
         ]);
 
+        nodeConfig.addTechs([
+            [require('enb-bevis/techs/js'), {
+                lang: '{lang}',
+                target: '?.source.{lang}.js',
+                useSourceMap: useSourceMaps
+            }],
+            [require('enb-modernizr/techs/modernizr'), {
+                useSourceMap: useSourceMaps,
+                source: '?.source.{lang}.js',
+                target: '?.modernizr.{lang}.js'
+            }]
+        ]);
+
         if (this._useAutopolyfiller) {
             nodeConfig.addTechs([
-                [require('enb-bevis/techs/js'), {
-                    lang: '{lang}',
-                    target: '?.source.{lang}.js',
-                    useSourceMap: useSourceMaps
-                }],
                 [require('enb-autopolyfiller/techs/autopolyfiller'), {
-                    source: '?.source.{lang}.js',
+                    source: '?.modernizr.{lang}.js',
                     target: '?.{lang}.js',
                     browsers: browserSupport,
                     excludes: this._autopolyfillerExcludes,
@@ -303,9 +311,10 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
                 }]
             ]);
         } else {
-            nodeConfig.addTech([require('enb-bevis/techs/js'), {
-                lang: '{lang}',
-                useSourceMap: useSourceMaps
+            nodeConfig.addTech([require('enb/techs/file-copy'), {
+                source: '?.modernizr.{lang}.js',
+                target: '?.{lang}.js',
+                lang: '{lang}'
             }]);
         }
 

@@ -1,6 +1,6 @@
 {
   "name": "enb-bevis-helper",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "scripts": {
     "test": "npm run-script jshint && npm run-script check-style",
     "jshint": "jshint .",
@@ -23,6 +23,7 @@
     "enb-stylus": "^1.0.0",
     "enb-autopolyfiller": "^1.2.0",
     "enb-y-i18n": "^1.0.1",
+    "enb-modernizr": "^1.1.1",
     "enb-borschik": "^1.0.4"
   },
   "devDependencies": {
