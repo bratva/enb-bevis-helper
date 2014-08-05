@@ -79,10 +79,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
                 if (blocksToTest.length) {
                     testDirs = blocksToTest;
                 }
-                return task.buildTargets([
-                    path + '/sources.js',
-                    path + '/tests.js'
-                ]);
+                return task.buildTargets([path]);
             });
             var fileMask = function (file) {
                 var fullname = file.fullname;
