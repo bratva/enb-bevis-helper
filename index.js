@@ -66,24 +66,27 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
      * Конфигурирует проект для сборки тестов.
      *
      * @param {String} path Путь к ноде, в которой происходит сборка тестов.
+     * @param {Object} [options] Опции
+     * @param {String[]} options.additionalTargets Дополнительные цели для тестов
      * @returns {EnbBevisHelperBase}
      */
-    configureUnitTests: function (path) {
+    configureUnitTests: function (path, options) {
+        options = options || {};
+        options.additionalTargets = options.additionalTargets || [];
         return this.copyAnd(function () {
             this._buildHtml = false;
             this._buildTests = true;
             this._depsConfig = {jsSuffixes: ['js', 'test.js']};
             var testDirs = this._testDirs;
+            var targets = ['sources.js', 'tests.js'].concat(options.additionalTargets);
             this._config.task('test', function (task) {
                 var blocksToTest = [].slice.call(arguments, 1);
                 if (blocksToTest.length) {
                     testDirs = blocksToTest;
                 }
-                return task.buildTargets([
-                    path + '/sources.js',
-                    path + '/tests.js',
-                    path
-                ]);
+                return task.buildTargets(targets.map(function (target) {
+                    return path + '/' + target;
+                }));
             });
             var fileMask = function (file) {
                 var fullname = file.fullname;
