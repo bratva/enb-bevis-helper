@@ -248,7 +248,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
      * @param {Object} dependencies
      * @returns {EnbBevisHelperBase}
      */
-    clientBtDependencies: function(dependencies) {
+    clientBtDependencies: function (dependencies) {
         return this.copyAnd(function () {
             this._clientBtDependencies = dependencies;
         });
