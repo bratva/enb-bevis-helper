@@ -22,6 +22,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
         this._config = config;
         this._useSourceMaps = null;
         this._useCoverage = null;
+        this._clientBtDependencies = null;
     },
 
     /**
@@ -242,6 +243,18 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
     },
 
     /**
+     * Задает зависимости для клиентского BT-модуля.
+     *
+     * @param {Object} dependencies
+     * @returns {EnbBevisHelperBase}
+     */
+    clientBtDependencies: function(dependencies) {
+        return this.copyAnd(function () {
+            this._clientBtDependencies = dependencies;
+        });
+    },
+
+    /**
      * Применяет конфигурацию для ноды.
      *
      * @param {NodeConfig} nodeConfig
@@ -288,7 +301,13 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
             require('enb-bevis/techs/files'),
 
             [require('enb-y-i18n/techs/y-i18n-lang-js'), {lang: '{lang}'}],
-            [require('enb-bt/techs/bt-client-module'), {useSourceMap: useSourceMaps}]
+            [
+                require('enb-bt/techs/bt-client-module'),
+                this._clientBtDependencies ? {
+                    dependencies: this._clientBtDependencies,
+                    useSourceMap: useSourceMaps
+                } : {useSourceMap: useSourceMaps}
+            ]
         ]);
 
         nodeConfig.addTechs([
