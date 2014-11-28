@@ -402,7 +402,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
                 ]);
             });
 
-            configureCssBuild(null, browserSupport, {ie: false});
+            configureCssBuild(null, browserSupport, {});
 
             if (this._ie8Suffix) {
                 configureCssBuild(this._ie8Suffix, ['ie 8'], {ie: 8});
