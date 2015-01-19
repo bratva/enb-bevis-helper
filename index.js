@@ -23,6 +23,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
         this._useSourceMaps = null;
         this._useCoverage = null;
         this._clientBtDependencies = null;
+        this._useCssBorschikTech = null;
     },
 
     /**
@@ -177,6 +178,18 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
     },
 
     /**
+     * Устанавливает технологию для минимизации css через borschik.
+     *
+     * @param {String} tech
+     * @returns {EnbBevisHelperBase}
+     */
+    useCssBorschikTech: function (tech) {
+        return this.copyAnd(function () {
+            this._useCssBorschikTech = tech;
+        });
+    },
+
+    /**
      * Задает список исключений для автополифиллера.
      *
      * @param {String[]} autopolyfillerExcludes
@@ -264,6 +277,7 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
         var browserSupport = this._browserSupport;
         var addTargets = this._addTargets;
         var useSourceMaps = this._useSourceMaps;
+        var useCssBorschikTech = this._useCssBorschikTech;
 
         if (useSourceMaps === null) {
             useSourceMaps = !process.env.ENB_NO_SOURCE_MAPS;
@@ -286,8 +300,14 @@ var EnbBevisHelperBase = inherit(ModuleConfig, /** @lends EnbBevisHelperBase.pro
                 nodeConfig.addTech([require('enb/techs/file-copy'), {source: file, target: '_' + file}]);
             });
             nodeConfig.mode('production', function () {
+                var borschikOptions = {source: file, target: '_' + file, freeze: true};
+
+                if (useCssBorschikTech) {
+                    borschikOptions.tech = useCssBorschikTech;
+                }
+
                 nodeConfig.addTech([
-                    require('enb-borschik/techs/borschik'), {source: file, target: '_' + file, freeze: true}
+                    require('enb-borschik/techs/borschik'), borschikOptions
                 ]);
             });
             if (addTargets) {
